@@ -656,11 +656,11 @@ export async function checkEligibility(
       data = await response.json();
       console.log('The Daks API Response data:', data);
       
-      if (data.eligibleStatus === 1) {
+      if (data.isEligible === true) {
         return {
           eligible: true,
           message: 'You are eligible!',
-          details: `Your wallet is eligible for ${data.eligibleStatus} ${data.message}`,
+          details: 'Your wallet is in the whitelist, click the checker for details.',
         };
       }
       
