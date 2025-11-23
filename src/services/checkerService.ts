@@ -73,6 +73,30 @@ export const projects: Project[] = [
     xUrl: 'https://x.com/overnads',
     apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/overnads?address=`,
   },
+  {
+    id: 'wonad',
+    name: 'Wonad',
+    image: 'https://pbs.twimg.com/profile_images/1819387582951968769/RA52IEt0_400x400.jpg',
+    checkerUrl: 'https://app.thiswonad.xyz/checker',
+    xUrl: 'https://x.com/thiswonad',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/wonad?address=`,
+  },
+  {
+    id: 'owlsmonad',
+    name: 'OwlsMonad',
+    image: 'https://pbs.twimg.com/profile_images/1876831188217741313/8aYwKgPM_400x400.jpg',
+    checkerUrl: 'https://octotools.xyz/wallet-checker',
+    xUrl: 'https://x.com/Owls_nft_',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/owlsmonad`,
+  },
+  {
+    id: 'octonads',
+    name: 'OctoNads',
+    image: 'https://pbs.twimg.com/profile_images/1895511038063489024/_uOw0SxD_400x400.png',
+    checkerUrl: 'https://octotools.xyz/wallet-checker',
+    xUrl: 'https://x.com/OctoNads',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/octonads`,
+  }
 ];
 
 export async function checkEligibility(
@@ -123,6 +147,100 @@ export async function checkEligibility(
         eligible: false,
         message: 'Not whitelisted',
         details: 'Wallet is not whitelisted',
+      };
+    }
+
+    // OwlsMonad
+    if (project.id === 'owlsmonad') {
+      console.log('Making POST request to OwlsMonad with address:', address);
+      
+      response = await fetch(project.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address }),
+      });
+      
+      if (!response.ok) {
+        console.log('OwlsMonad Response not OK:', response.status);
+        return {
+          eligible: false,
+          message: 'Unable to check eligibility',
+          details: `API responded with status: ${response.status}`,
+        };
+      }
+
+      data = await response.json();
+      console.log('OwlsMonad API Response data:', data);
+      
+      const owlsData = data.OwlsNad;
+      if (owlsData && owlsData.eligible === true) {
+        const entries = owlsData.entries || [];
+        
+        if (entries.length > 0) {
+          const firstEntry = entries[0];
+          const details = `Spot: ${firstEntry.spotType}, Phase: ${firstEntry.phase}`;
+          
+          return {
+            eligible: true,
+            message: 'You are eligible!',
+            details: details,
+          };
+        }
+      }
+      
+      return {
+        eligible: false,
+        message: 'Not eligible',
+        details: 'No whitelist spots found',
+      };
+    }
+
+    // OctoNads
+    if (project.id === 'octonads') {
+      console.log('Making POST request to OctoNads with address:', address);
+      
+      response = await fetch(project.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address }),
+      });
+      
+      if (!response.ok) {
+        console.log('OctoNads Response not OK:', response.status);
+        return {
+          eligible: false,
+          message: 'Unable to check eligibility',
+          details: `API responded with status: ${response.status}`,
+        };
+      }
+
+      data = await response.json();
+      console.log('OctoNads API Response data:', data);
+      
+      const octoData = data.OctoNads_Genesis;
+      if (octoData && octoData.eligible === true) {
+        const entries = octoData.entries || [];
+        
+        if (entries.length > 0) {
+          const firstEntry = entries[0];
+          const details = `Spot: ${firstEntry.spotType}, Phase: ${firstEntry.phase}`;
+          
+          return {
+            eligible: true,
+            message: 'You are eligible!',
+            details: details,
+          };
+        }
+      }
+      
+      return {
+        eligible: false,
+        message: 'Not eligible',
+        details: 'No whitelist spots found',
       };
     }
 
@@ -350,6 +468,39 @@ export async function checkEligibility(
         eligible: false,
         message: 'Not eligible',
         details: data.message || 'No eligibility information available.',
+      };
+    }
+
+    // Wonad
+    if (project.id === 'wonad') {
+      console.log('Making GET request to Wonad with address:', address);
+      
+      response = await fetch(`${project.apiUrl}${address}`);
+      
+      if (!response.ok) {
+        console.log('Wonad Response not OK:', response.status);
+        return {
+          eligible: false,
+          message: 'Unable to check eligibility',
+          details: `API responded with status: ${response.status}`,
+        };
+      }
+
+      data = await response.json();
+      console.log('Wonad API Response data:', data);
+      
+      if (data.isEligible === true) {
+        return {
+          eligible: true,
+          message: 'You are eligible!',
+          details: `Allocation: ${data.allocation}, click the checker for details.`,
+        };
+      }
+      
+      return {
+        eligible: false,
+        message: 'Not eligible',
+        details: 'No allocation found',
       };
     }
     
