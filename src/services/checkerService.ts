@@ -18,6 +18,14 @@ export const projects: Project[] = [
     apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/monadverse?address=`,
   },
   {
+    id: 'thedaks',
+    name: 'The Daks',
+    image: 'https://pbs.twimg.com/profile_images/1882118369119465472/wlG7yZLL_400x400.jpg',
+    checkerUrl: 'https://checker.thedaks.xyz/',
+    xUrl: 'https://x.com/thedaks_png',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/thedaks?address=`,
+  },
+  {
     id: 'poply',
     name: 'Poply',
     image: 'https://pbs.twimg.com/profile_images/1960818622537814016/3qEMjXr4_400x400.jpg',
@@ -628,6 +636,39 @@ export async function checkEligibility(
           details: 'Failed to connect to Monadoon checker API',
         };
       }
+    }
+
+    // The Daks
+    if (project.id === 'thedaks') {
+      console.log('Making GET request to The Daks with address:', address);
+      
+      response = await fetch(`${project.apiUrl}${address}`);
+      
+      if (!response.ok) {
+        console.log('The Daks Response not OK:', response.status);
+        return {
+          eligible: false,
+          message: 'Unable to check eligibility',
+          details: `API responded with status: ${response.status}`,
+        };
+      }
+
+      data = await response.json();
+      console.log('The Daks API Response data:', data);
+      
+      if (data.eligibleStatus === 1) {
+        return {
+          eligible: true,
+          message: 'You are eligible!',
+          details: `Your wallet is eligible for ${data.eligibleStatus} ${data.message}`,
+        };
+      }
+      
+      return {
+        eligible: false,
+        message: 'Not eligible',
+        details: 'No whitelist spot found',
+      };
     }
         
     // Woolly Eggs
