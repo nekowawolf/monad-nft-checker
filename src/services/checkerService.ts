@@ -738,7 +738,7 @@ export async function checkEligibility(
           return {
             eligible: true,
             message: 'You are eligible!',
-            details: `${data.details}, check the checker for more info.`,
+            details: `${data.details}, click the checker for details.`,
           };
         }
 
