@@ -120,6 +120,22 @@ export const projects: Project[] = [
     checkerUrl: 'https://checker.monadoon.xyz/',
     xUrl: 'https://x.com/Monadoons',
     apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/monadoon?address=`,
+  },
+  {
+    id: 'monshape',
+    name: 'Monshape',
+    image: 'https://pbs.twimg.com/profile_images/1968738895388135424/CpP76kJf_400x400.jpg',
+    checkerUrl: 'https://checker.monshape.club/',
+    xUrl: 'https://x.com/Monshape',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/monshape?address=`,
+  },
+  {
+    id: 'monzilla',
+    name: 'Monzilla',
+    image: 'https://pbs.twimg.com/profile_images/1957725909785669635/wwEIuro3_400x400.jpg',
+    checkerUrl: 'https://monzilla-wallet-checker.vercel.app/',
+    xUrl: 'https://x.com/monzillanad',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/monzilla?address=`,
   }
 ];
 
@@ -608,6 +624,36 @@ export async function checkEligibility(
       }
     }
 
+    // Monzilla
+    if (project.id === 'monzilla') {
+      console.log('Checking Monzilla eligibility for address:', address);
+
+      try {
+        const response = await fetch(`${project.apiUrl}${encodeURIComponent(address)}`);
+        if (!response.ok) {
+          return {
+            eligible: false,
+            message: 'Unable to check eligibility',
+            details: `API responded with status: ${response.status}`,
+          };
+        }
+
+        const data = await response.json();
+        return {
+          eligible: data.eligible,
+          message: data.message,
+          details: data.details,
+        };
+      } catch (error) {
+        console.error('Monzilla eligibility error:', error);
+        return {
+          eligible: false,
+          message: 'Error checking eligibility',
+          details: 'Failed to connect to Monzilla checker API',
+        };
+      }
+    }
+
     // Monadoon
     if (project.id === 'monadoon') {
       console.log('Checking Monadoon eligibility for address:', address);
@@ -669,6 +715,46 @@ export async function checkEligibility(
         message: 'Not eligible',
         details: 'No whitelist spot found',
       };
+    }
+
+    // Monshape
+    if (project.id === 'monshape') {
+      console.log('Checking Monshape eligibility for address:', address);
+
+      try {
+        const response = await fetch(`${project.apiUrl}${encodeURIComponent(address)}`);
+        if (!response.ok) {
+          return {
+            eligible: false,
+            message: 'Unable to check eligibility',
+            details: `API responded with status: ${response.status}`,
+          };
+        }
+
+        const data = await response.json();
+        console.log('Monshape proxy response:', data);
+
+        if (data.eligible === true) {
+          return {
+            eligible: true,
+            message: 'You are eligible!',
+            details: `${data.details}, check the checker for more info.`,
+          };
+        }
+
+        return {
+          eligible: false,
+          message: data.message || 'Not eligible',
+          details: data.details || 'Your wallet is not in the whitelist for Monshape',
+        };
+      } catch (error) {
+        console.error('Monshape eligibility error:', error);
+        return {
+          eligible: false,
+          message: 'Error checking eligibility',
+          details: 'Failed to connect to Monshape proxy API',
+        };
+      }
     }
         
     // Woolly Eggs
