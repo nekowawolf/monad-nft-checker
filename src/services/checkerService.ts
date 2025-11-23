@@ -10,6 +10,14 @@ export const projects: Project[] = [
     apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/meowwnads?address=`,
   },
   {
+    id: 'monadverse',
+    name: 'Monadverse',
+    image: 'https://pbs.twimg.com/profile_images/1840842670740025345/6Zw2Z9oO_400x400.jpg',
+    checkerUrl: 'https://monadverse.land/whitelist',
+    xUrl: 'https://x.com/monadverse',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/monadverse?address=`,
+  },
+  {
     id: 'poply',
     name: 'Poply',
     image: 'https://pbs.twimg.com/profile_images/1960818622537814016/3qEMjXr4_400x400.jpg',
@@ -96,6 +104,14 @@ export const projects: Project[] = [
     checkerUrl: 'https://octotools.xyz/wallet-checker',
     xUrl: 'https://x.com/OctoNads',
     apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/octonads`,
+  },
+  {
+    id: 'monadoon',
+    name: 'Monadoon',
+    image: 'https://pbs.twimg.com/profile_images/1911561641952436224/J8ETOV5V_400x400.jpg',
+    checkerUrl: 'https://checker.monadoon.xyz/',
+    xUrl: 'https://x.com/Monadoons',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/monadoon?address=`,
   }
 ];
 
@@ -553,7 +569,67 @@ export async function checkEligibility(
         details: 'No prize found',
       };
     }
-    
+
+    // Monadverse
+    if (project.id === 'monadverse') {
+      console.log('Checking Monadverse eligibility for address:', address);
+
+      try {
+        const response = await fetch(`${project.apiUrl}${encodeURIComponent(address)}`);
+        if (!response.ok) {
+          return {
+            eligible: false,
+            message: 'Unable to check eligibility',
+            details: `API responded with status: ${response.status}`,
+          };
+        }
+
+        const data = await response.json();
+        return {
+          eligible: data.eligible,
+          message: data.message,
+          details: data.details,
+        };
+      } catch (error) {
+        console.error('Monadverse eligibility error:', error);
+        return {
+          eligible: false,
+          message: 'Error checking eligibility',
+          details: 'Failed to connect to Monadverse checker API',
+        };
+      }
+    }
+
+    // Monadoon
+    if (project.id === 'monadoon') {
+      console.log('Checking Monadoon eligibility for address:', address);
+
+      try {
+        const response = await fetch(`${project.apiUrl}${encodeURIComponent(address)}`);
+        if (!response.ok) {
+          return {
+            eligible: false,
+            message: 'Unable to check eligibility',
+            details: `API responded with status: ${response.status}`,
+          };
+        }
+
+        const data = await response.json();
+        return {
+          eligible: data.eligible,
+          message: data.message,
+          details: data.details,
+        };
+      } catch (error) {
+        console.error('Monadoon eligibility error:', error);
+        return {
+          eligible: false,
+          message: 'Error checking eligibility',
+          details: 'Failed to connect to Monadoon checker API',
+        };
+      }
+    }
+        
     // Woolly Eggs
     if (project.id === 'woolly') {
       if (data.success === true) {
