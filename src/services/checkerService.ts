@@ -90,6 +90,14 @@ export const projects: Project[] = [
     apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/overnads?address=`,
   },
   {
+    id: 'the10ksquad',
+    name: 'The 10k Squad',
+    image: 'https://pbs.twimg.com/profile_images/1954851397649711104/evoBVFM0_400x400.jpg',
+    checkerUrl: 'https://checker.the10ksquadhub.com/',
+    xUrl: 'https://x.com/the10kSquad',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/the10ksquad`,
+  },
+  {
     id: 'wonad',
     name: 'Wonad',
     image: 'https://pbs.twimg.com/profile_images/1819387582951968769/RA52IEt0_400x400.jpg',
@@ -328,6 +336,48 @@ export async function checkEligibility(
         eligible: false,
         message: 'Not eligible',
         details: 'No waitlist status found',
+      };
+    }
+
+    // The 10k Squad
+    if (project.id === 'the10ksquad') {
+      console.log('Making POST request to The 10k Squad with address:', address);
+      
+      response = await fetch(project.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address }),
+      });
+      
+      if (!response.ok) {
+        console.log('The 10k Squad Response not OK:', response.status);
+        return {
+          eligible: false,
+          message: 'Unable to check eligibility',
+          details: `API responded with status: ${response.status}`,
+        };
+      }
+
+      data = await response.json();
+      console.log('The 10k Squad API Response data:', data);
+      
+      if (data.eligible === true) {
+        const sheets = data.sheets || [];
+        const sheetList = sheets.join(', ');
+        
+        return {
+          eligible: true,
+          message: 'You are eligible!',
+          details: `Your wallet eligible for ${sheetList}, click the checker for details.`,
+        };
+      }
+      
+      return {
+        eligible: false,
+        message: 'Not eligible',
+        details: 'No eligibility found',
       };
     }
 
