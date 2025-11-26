@@ -138,6 +138,14 @@ export const projects: Project[] = [
     apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/monshape?address=`,
   },
   {
+    id: 'sealuminati',
+    name: 'Sealuminati',
+    image: 'https://pbs.twimg.com/profile_images/1891609634240331777/hDynHoVD_400x400.jpg',
+    checkerUrl: 'https://portal.sealuminati.xyz/',
+    xUrl: 'https://x.com/sealuminati',
+    apiUrl: `${typeof window === 'undefined' ? 'http://localhost:3000' : ''}/api/sealuminati?address=`,
+  },
+  {
     id: 'monzilla',
     name: 'Monzilla',
     image: 'https://pbs.twimg.com/profile_images/1957725909785669635/wwEIuro3_400x400.jpg',
@@ -764,6 +772,42 @@ export async function checkEligibility(
         eligible: false,
         message: 'Not eligible',
         details: 'No whitelist spot found',
+      };
+    }
+
+    // Sealuminati
+    if (project.id === 'sealuminati') {
+      console.log('Making GET request to Sealuminati with address:', address);
+      
+      response = await fetch(`${project.apiUrl}${address}`);
+      
+      if (!response.ok) {
+        console.log('Sealuminati Response not OK:', response.status);
+        return {
+          eligible: false,
+          message: 'Unable to check eligibility',
+          details: `API responded with status: ${response.status}`,
+        };
+      }
+
+      data = await response.json();
+      console.log('Sealuminati API Response data:', data);
+      
+      if (data.whitelisted === true) {
+        const phases = data.phases || [];
+        const phaseList = phases.join(', ');
+        
+        return {
+          eligible: true,
+          message: 'You are eligible!',
+          details: `Your wallet eligible for phases: ${phaseList}, click the checker for details.`,
+        };
+      }
+      
+      return {
+        eligible: false,
+        message: 'Not eligible',
+        details: 'No eligibility found',
       };
     }
 
